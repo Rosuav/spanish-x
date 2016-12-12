@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route, IndexRoute } from 'react-router';
-//import Login from './components/Login';
+import SignIn from './components/SignIn';
 import App from './components/app';
 
 // attribute on Route onEnter= 
@@ -8,7 +8,7 @@ import App from './components/app';
 
 export default (
 	<Route path='/' component={App}>
-		<IndexRoute component={Login} />
+		<IndexRoute component={SignIn} />
 		<Route path='app' component={App} />
 	</Route>
 );
