@@ -19,6 +19,7 @@ dotenv.load();
 console.log(`Server running in ${process.env.NODE_ENV} mode`);
 
 const app = express();
+const jsonParser = bodyParser.json();
 
 app.use(express.static(process.env.CLIENT_PATH));
 
@@ -65,7 +66,7 @@ app.get('/auth/google/callback', passport.authenticate('google', {failureRedirec
 //// END AUTH REQUESTS ////
 
 //// START USERS ////
-app.get('/', (req, res) => {
+app.get('/users', (req, res) => {
     User.find((err, users) => {
         if (err) {
             return res.status(400).json(err);
@@ -84,6 +85,10 @@ app.delete('/:userId', (req, res) => {
     });
 });
 //// END USERS ////
+
+//// START QUESTIONS ////
+
+//// END QUESTIONS ////
 
 function runServer() {
     let databaseUri = process.env.DATABASE_URI || global.databaseUri || 'mongodb://localhost/spanish-x';
