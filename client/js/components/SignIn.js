@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 
 let createHandlers = (dispatch) => {
-	let signupSubmit = (event) => {
+	let signipSubmit = (event) => {
 		event.preventDefault();
 		dispatch(actions.signup(event.target.email.value, event.target.password.value));
 		event.target.reset();
@@ -43,7 +43,7 @@ class SignIn extends Component {
 
 let mapStateToProps = (state, props) => {
 	return {
-		signUpSuccess: state.signUpSuccess
+		signInSuccess: state.signInSuccess
 	};
 };
 
