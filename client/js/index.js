@@ -8,12 +8,12 @@ import routes from './route';
 
 console.log(`Client running in ${process.env.NODE_ENV} mode`);
 
-document.addEventListener('DOMContentLoaded', () => {
-	if (Notification.permission !== "granted")
-    Notification.requestPermission();
+// document.addEventListener('DOMContentLoaded', () => {
+// 	if (Notification.permission !== "granted")
+//     Notification.requestPermission();
 
-	ReactDOM.render( 
-			<Provider store={store}>
-				<Router history={hashHistory} routes={routes} />
-			</Provider>, document.getElementById('app'))
-})
+// 	ReactDOM.render( 
+// 			<Provider store={store}>
+// 				<Router history={hashHistory} routes={routes} />
+// 			</Provider>, document.getElementById('app'))
+// })

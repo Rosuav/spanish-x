@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import passport from 'passport';
 import dotenv from 'dotenv';
+import fs from 'fs';
 
 import User from '../models/user-model';
 import Question from '../models/question-model';
@@ -21,7 +22,16 @@ console.log(`Server running in ${process.env.NODE_ENV} mode`);
 const app = express();
 const jsonParser = bodyParser.json();
 
-app.use(express.static(process.env.CLIENT_PATH));
+app.use(express.static(process.env.CLIENT_PATH))
+app.use(passport.initialize());
+
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+  done(null, user);
+});
 
 //// START GOOGLE AUTH STRAT ////
 passport.use(new GoogleStrategy({
@@ -30,8 +40,35 @@ passport.use(new GoogleStrategy({
     callbackURL: 'http://localhost:8080/auth/google/callback'
     },
     (accessToken, refreshToken, profile, cb) => {
-        User.findOrCreate({ googleId: profile.id }, (err, user) => {
-            return cb(err, user);
+        User.find({ googleId: profile.id }, (err, user) => {
+            // once we authorize, populate the questions array for user
+            if (!user.length) {
+                const questionsArray = [];
+                Question.find((err, questions) => {
+                    questions.forEach((question) => {
+                        questionsArray.push({
+                            questionId: question._id,
+                            word: question.word,
+                            translation: question.translation,
+                            algIndex: 1
+                        });
+                    })
+
+                    User.create({
+                        googleId: profile.id,
+                        name: profile.displayName,
+                        accessToken: accessToken,
+                        score: 0,
+                        questions: questionsArray
+                    }, (err, user) => {
+                        console.log(user);
+                        return cb(err, user);
+                    });
+                });
+            } else {
+                console.log("HEre");
+                return cb(err, user[0]);
+            }
         })
     }
 ));
@@ -41,12 +78,14 @@ passport.use(new GoogleStrategy({
 passport.use(new BearerStrategy(
     (token, done) => {
         User.findOne({accessToken: token}, (err, user) => {
+            console.log("~~~~ " + user);
             if (err) {
                 return done(null, false);
             }
-            if (!user) {
+            if (!user.length) {
                 return done(null, false);
             }
+            
             return done(null, user[0]);
         });
     }
@@ -56,11 +95,10 @@ passport.use(new BearerStrategy(
 //// START AUTH REQUESTS ////
 app.get('/auth/google', passport.authenticate('google', {scope:['profile']}));
 
-app.get('/auth/google/callback', passport.authenticate('google', {failureRedirect: 'login'}),
-    (req, res) => {
-        // Successful authentication, redirect home
-        res.redirect('/');
-    }
+app.get('/auth/google/callback', passport.authenticate('google', {
+            successRedirect : '/questions',
+            failureRedirect : '/'
+    })
 );
 
 //// END AUTH REQUESTS ////
@@ -84,10 +122,56 @@ app.delete('/:userId', (req, res) => {
         return res.status(200).json(user);
     });
 });
+
+app.get('/logout', function(req, res) {
+    req.logout();
+    res.redirect('/');
+});
 //// END USERS ////
 
 //// START QUESTIONS ////
+app.get('/questions', (req, res) => {
+    // grab question from user's questions array...
+    // const question = req.user.questions[0];
+    // const response = {
+    //     _id: question.questionId,
+    //     question: question.word,
+    //     score: req.user.score
+    // }
+    Question.find((err, q) => {
+        if (err) {
+            return res.status(400).json(err);
+        }
+        return res.status(200).json(q);
+    });
+});
 
+app.post('/questions', jsonParser, (req, res) => {
+    if (!req.body.word) {
+    return res.status(422).json({
+      message: 'Missing field: Word',
+    });
+  }
+
+  if (!req.body.translation) {
+    return res.status(422).json({
+      answer: 'Missing field: Translation',
+    });
+  }
+
+  Question.create({
+    word: req.body.word,
+    answer: req.body.translation
+  }, (err, question) => {
+    if (err) {
+        return res.status(400).json(err);
+    }
+  });
+});
+
+app.put('/questions', passport.authenticate('bearer', { session: false }), (req, res) => {
+
+});
 //// END QUESTIONS ////
 
 function runServer() {
@@ -109,4 +193,3 @@ function runServer() {
 if (require.main === module) {
     runServer();
 }
-
