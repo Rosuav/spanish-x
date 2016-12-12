@@ -23,7 +23,7 @@ class SignIn extends Component {
 			'theme': 'dark',
 			'onsuccess': this.onSignIn
 		})
-	},
+	}
 
 	render() {
 		return (
@@ -39,7 +39,7 @@ class SignIn extends Component {
 			</div>
 		);			
 	}
-})
+}
 
 let mapStateToProps = (state, props) => {
 	return {
@@ -47,7 +47,7 @@ let mapStateToProps = (state, props) => {
 	};
 };
 
-let Container = connect(mapStateToProps)(SignUp);
+let Container = connect(mapStateToProps)(SignIn);
 
 export default SignIn;
 
