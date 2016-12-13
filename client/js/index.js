@@ -15,5 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	ReactDOM.render( 
 			<Provider store={store}>
 				<Router history={hashHistory} routes={routes} />
+					<Route path="/questions" component={Questions} />
+
 			</Provider>, document.getElementById('app'))
 })

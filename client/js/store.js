@@ -1,7 +1,7 @@
-import { default as thunk } from 'redux-thunk';
+const thunk = require('redux-thunk').default;
 import { createStore, applyMiddleware } from 'redux';
-import reducers from './reducers/reducers';
+const reducers = require('./reducers/reducers');
 
-const store = createStore(reducers, applyMiddleware(thunk));
+const store = createStore(reducers.translatorReducer, applyMiddleware(thunk));
 
 export default store;
