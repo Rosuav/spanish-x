@@ -1,5 +1,5 @@
 import React from 'react';
-import actions from '../components/actions/actions';
+import * as actions from '../components/actions/actions';
 
 
 // import {
